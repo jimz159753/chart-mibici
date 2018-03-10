@@ -1,15 +1,34 @@
 <template>
   <div id="wrapper">
-    <canvas id="testing" width="800px" height="500px"></canvas>
+  <canvas id="testing" width="800px" height="500px"></canvas>
+    <button @click="abc">button</button>
+    <p>{{nombre}} {{apellido}}</p>
   </div>
 </template>
 
 <script>
   import { Bar } from 'vue-chartjs'
+  import fs from "fs";
 
-  
   export default {
     name: 'landing-page',
+    data() {
+      return{
+        nombre: "luis",
+        apellido: "jimenez",
+      };
+    },
+    methods: {
+      abc: function(){
+        fs.readFile("assets/mibici-viajes.json", "utf8",  (err, data)  => {
+              if (err) throw err;
+              const obj = JSON.parse(data);
+              console.log(this.nombre)
+          });
+
+        return console.log(json)
+      }
+    },
     mounted() {
       const ctx = document.getElementById("testing").getContext("2d");
       var myChart = new Chart(ctx, {
@@ -55,6 +74,10 @@
 </script>
 
 <style>
+  #wrapper{
+    width: 500px;
+    height: 500px;
+  }
   #myChart {
     border: solid;
   }
