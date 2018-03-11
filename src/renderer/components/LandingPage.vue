@@ -21,12 +21,10 @@
     methods: {
       abc: function(){
         fs.readFile("assets/mibici-viajes.json", "utf8",  (err, data)  => {
-              if (err) throw err;
-              const obj = JSON.parse(data);
-              console.log(this.nombre)
-          });
-
-        return console.log(json)
+            if (err) throw err;
+            const obj = JSON.parse(data);
+            console.log(this.nombre)
+        });
       }
     },
     mounted() {
