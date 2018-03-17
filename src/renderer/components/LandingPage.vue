@@ -20,6 +20,7 @@
 
         data_field: [],
         result: {},
+        stations: {},
 
       };
     },
@@ -28,7 +29,7 @@
       
       add_info: function(){
         
-        fs.readFile("assets/test.json", "utf8",  (err, data)  => {
+        fs.readFile("assets/mibici-viajes.json", "utf8",  (err, data)  => {
             if (err) throw err;
             this.data_field = JSON.parse(data);
         });
@@ -73,8 +74,23 @@
         }
       },
 
-      add_chart: function(){
+      station_used : function(){
 
+        this.stations['stations'] = [];
+
+        for(var i=0; i<this.data_field.length; i++){
+
+          this.stations['stations'].push(this.data_field[i]['Origen_Id']);
+        }
+
+        var count = {}
+        this.stations['stations'].forEach(function(x) { count[x] = (count[x] || 0)+1; });
+        this.stations = count;
+        console.log( this.stations)
+      },
+
+      add_chart: function(){
+        this.station_used()
         this.count_genre()
         this.years_range()
 
@@ -86,7 +102,7 @@
         data: {
                 labels: Object.keys(this.result),
                 datasets: [{
-                    label: '# of Votes',
+                    label: 'result',
                     data: Object.values(this.result),
                     backgroundColor: [
                         'rgba(255, 99, 132, 0.2)'
@@ -113,6 +129,7 @@
     
     mounted() {
     this.add_info();
+    
     }
 
   }
