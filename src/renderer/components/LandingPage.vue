@@ -2,6 +2,7 @@
   <div id="wrapper">
   <canvas id="line" width="800px" height="500px"></canvas>
   <canvas id="doughnut" width="800px" height="500px"></canvas>
+  <!-- <h3>{{this.field['top']}}</h3> -->
     <button @click="add_chart">button</button>
     
   </div>
@@ -42,7 +43,8 @@
                       'september',
                       'october',
                       'november',
-                      'december'
+                      'december',
+                      'mibici-stations'
                       ];
         
         this.months.forEach((value) => { 
@@ -53,7 +55,8 @@
           
           });
        
-        });   
+        });  
+
       },
 
       count_genre: function(){
@@ -117,20 +120,42 @@
       station_used : function(){
 
         this.result_stations['stations'] = [];
+        this.data_field['top'] = [];
 
-        for(var i=0; i<this.data_field.length; i++){
+        for(var month in this.data_field){
 
-          this.result_stations['stations'].push(this.data_field[i]['Origen_Id']);
+          for (var i = 0; i < this.data_field[month].length; i++) {
+
+            this.result_stations['stations'].push(this.data_field[month][i]['Origen_Id']);
+
+          }
+
         }
+
+
+
 
         var count = {}
         this.result_stations['stations'].forEach(function(x) { count[x] = (count[x] || 0)+1; });
         this.result_stations = count;
-        console.log( this.result_stations)
+
+
+        var arr = Object.keys(this.result_stations).sort().reverse().slice(0,11);
+
+        for (var i = 0; i < this.data_field['mibici-stations'].length; i++) {
+          for(var j = 0; j < arr.length; j++){
+            if (this.data_field['mibici-stations'][i]['id'] == arr[j]) {
+              this.data_field['top'].push(this.data_field['mibici-stations'][i]['name']);
+            }
+          }
+        }
+              console.log(this.data_field['top'])
+        /*console.log(this.data_field['mibici-stations'])*/
+         /* stations more often used importing mibici-stations.json and mapping data to names */
       },
 
       add_chart: function(){
-        /*this.station_used()*/
+        this.station_used()
         this.count_genre()
         this.years_range()
 
@@ -169,7 +194,7 @@
         var genres = new Chart(dough, {
         type: 'line',
         data: {
-                labels: this.months ,
+                labels: this.months.slice(0,11) ,
                 datasets: [
                 {
                     label: 'Male',
