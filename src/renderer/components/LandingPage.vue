@@ -1,6 +1,7 @@
 <template>
   <div id="wrapper">
-  <canvas id="testing" width="800px" height="500px"></canvas>
+  <canvas id="line" width="800px" height="500px"></canvas>
+  <canvas id="doughnut" width="800px" height="500px"></canvas>
     <button @click="add_chart">button</button>
     
   </div>
@@ -17,104 +18,182 @@
 
     data() {
       return{
-
-        data_field: [],
-        result: {},
-        stations: {},
+        months: [],
+        data_field: {},
+        result_genre: {},
+        result_age: {},
+        result_stations: {},
 
       };
     },
 
     methods: {
-      
       add_info: function(){
         
-        fs.readFile("assets/mibici-viajes.json", "utf8",  (err, data)  => {
-            if (err) throw err;
-            this.data_field = JSON.parse(data);
-        });
+        this.months = [
+                      'january',
+                      'february',
+                      'march',
+                      'april',
+                      'may',
+                      'june',
+                      'july',
+                      'august',
+                      'september',
+                      'october',
+                      'november',
+                      'december'
+                      ];
         
+        this.months.forEach((value) => { 
+
+            fs.readFile("assets/json/"+ value +".json", "utf8",  (err, data)  => {
+              if (err) throw err;
+              this.data_field[value] = JSON.parse(data);
+          
+          });
+       
+        });   
       },
 
       count_genre: function(){
 
-        this.result['count_male'] = 0;
-        this.result['count_female'] = 0;
+        var male = {};
+        var female = {};
 
-        for(var i=0; i<this.data_field.length; i++){
 
-          if(this.data_field[i]['Genero'] == 'M' ){
-            this.result['count_male'] += 1;
-          }
-          else{
-            this.result['count_female'] += 1;
+        for(var month in this.data_field){
+            
+            male[month] = 0;
+            female[month] = 0;
+          
+          for (var i = 0; i < this.data_field[month].length; i++) {
+
+            if (this.data_field[month][i]['Genero'] == 'H') {
+              male[month] += 1;
+
+            }
+            else {
+              female[month] += 1;              
+            }
+
           }
 
         }
+
+        this.result_genre['count_male'] = Object.values(male);
+        this.result_genre['count_female'] = Object.values(female);
+
       },
       
       years_range: function(){
 
-        this.result['18-20'] = 0;
-        this.result['20-30'] = 0;
-        this.result['30-more'] = 0;
+        this.result_age['18-20'] = 0;
+        this.result_age['20-30'] = 0;
+        this.result_age['30-more'] = 0;
 
-        for(var i=0; i<this.data_field.length; i++){
+        for(var month in this.data_field){
 
-          if(parseInt(this.data_field[i]['A�o_de_nacimiento']) > 1998 && parseInt(this.data_field[i]['A�o_de_nacimiento']) <= 2000 ){
-            this.result['18-20'] += 1;
-          }
-          else if(parseInt(this.data_field[i]['A�o_de_nacimiento']) >= 1988 && parseInt(this.data_field[i]['A�o_de_nacimiento']) < 1998 ){
-            this.result['20-30'] += 1;
-          }
-          else if(parseInt(this.data_field[i]['A�o_de_nacimiento']) < 1988 ){
-            this.result['30-more'] += 1;
+          for (var i = 0; i < this.data_field[month].length; i++) {
+
+            if(parseInt(this.data_field[month][i]['A�o_de_nacimiento']) > 1998 && parseInt(this.data_field[month][i]['A�o_de_nacimiento']) <= 2000 ){
+            this.result_age['18-20'] += 1;
+            }
+            else if(parseInt(this.data_field[month][i]['A�o_de_nacimiento']) >= 1988 && parseInt(this.data_field[month][i]['A�o_de_nacimiento']) < 1998 ){
+              this.result_age['20-30'] += 1;
+            }
+            else if(parseInt(this.data_field[month][i]['A�o_de_nacimiento']) < 1988 ){
+              this.result_age['30-more'] += 1;
+            }
+
           }
 
         }
+
+        
+       
       },
 
       station_used : function(){
 
-        this.stations['stations'] = [];
+        this.result_stations['stations'] = [];
 
         for(var i=0; i<this.data_field.length; i++){
 
-          this.stations['stations'].push(this.data_field[i]['Origen_Id']);
+          this.result_stations['stations'].push(this.data_field[i]['Origen_Id']);
         }
 
         var count = {}
-        this.stations['stations'].forEach(function(x) { count[x] = (count[x] || 0)+1; });
-        this.stations = count;
-        console.log( this.stations)
+        this.result_stations['stations'].forEach(function(x) { count[x] = (count[x] || 0)+1; });
+        this.result_stations = count;
+        console.log( this.result_stations)
       },
 
       add_chart: function(){
-        this.station_used()
+        /*this.station_used()*/
         this.count_genre()
         this.years_range()
 
 
-        const ctx = document.getElementById("testing").getContext("2d");
         
-        var myChart = new Chart(ctx, {
-        type: 'line',
+
+
+        const line = document.getElementById("line").getContext("2d");
+        
+        var ages = new Chart(line, {
+        type: 'doughnut',
         data: {
-                labels: Object.keys(this.result),
-                datasets: [{
-                    label: 'result',
-                    data: Object.values(this.result),
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)'
-                        
-                    ],
+                labels: ['18-20', '20-30', '30-more'] ,
+                datasets: [
+                {
+                    label: 'Ages',
+                    data:  [this.result_age['18-20'], this.result_age['20-30'], this.result_age['30-more']],
+                    backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f"],
                     borderColor: [
-                        'rgba(255,99,132,1)'
+                        'blue'
                     ],
                     borderWidth: 1
-                }]
+                }
+                ]
             },
             options: {
+              title: {
+                display: true,
+                text: 'Ages average'
+              },
+            }
+        });
+
+        const dough = document.getElementById("doughnut").getContext("2d");
+
+        var genres = new Chart(dough, {
+        type: 'line',
+        data: {
+                labels: this.months ,
+                datasets: [
+                {
+                    label: 'Male',
+                    data:  this.result_genre['count_male'],
+                    borderColor: [
+                        'blue'
+                    ],
+                    borderWidth: 1
+                },
+                {
+                label: 'Female',
+                    data: this.result_genre['count_female'],
+                    borderColor: [
+                        'red'
+                    ],
+                    borderWidth: 1
+                }
+                ]
+            },
+            options: {
+                title: {
+                  display: true,
+                  text: 'Genres by month'
+                },
                 scales: {
                     yAxes: [{
                         ticks: {
@@ -124,6 +203,8 @@
                 }
             }
         });
+
+
       }
     },
     
@@ -143,7 +224,7 @@
     height: 500px;
   }
   
-  #myChart {
+  #genre {
     border: solid;
   }
 
