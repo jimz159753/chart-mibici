@@ -2,7 +2,7 @@
   <div id="wrapper">
   <canvas id="line" width="800px" height="500px"></canvas>
   <canvas id="doughnut" width="800px" height="500px"></canvas>
-  <!-- <h3>{{this.field['top']}}</h3> -->
+  <h4 id="test"> {{data_field['top']}} </h4>
     <button @click="add_chart">button</button>
     
   </div>
@@ -251,6 +251,11 @@
   
   #genre {
     border: solid;
+  }
+
+  #test {
+    height: 20px;
+    color: 'black';
   }
 
 </style>
